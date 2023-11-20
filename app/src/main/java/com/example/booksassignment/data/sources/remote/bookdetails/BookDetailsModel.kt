@@ -8,9 +8,9 @@ data class BookDetailsModel(
     @SerializedName("list_id")
     val listId: Int,
     @SerializedName("isbn")
-    val isbn: String,
+    val isbn: String?,
     @SerializedName("publication_date")
-    val publicationDate: String,
+    val publicationDate: String?,
     @SerializedName("author")
     val author: String,
     @SerializedName("title")

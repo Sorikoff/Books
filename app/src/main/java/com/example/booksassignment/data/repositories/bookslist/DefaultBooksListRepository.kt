@@ -53,7 +53,8 @@ class DefaultBooksListRepository @Inject constructor(
             is CustomResult.Error -> return result
         }
 
-        return CustomResult.Success(getAllFromDatabase())
+        val databaseBooksLists = getAllFromDatabase()
+        return CustomResult.Success(databaseBooksLists)
     }
 
     private suspend fun getAllFromDatabase(): List<BooksList> {
@@ -62,18 +63,19 @@ class DefaultBooksListRepository @Inject constructor(
         }
         return when (result) {
             is CustomResult.Success -> {
-                if (result.data.isEmpty()) {
+                val results = result.data
+                if (results.isEmpty()) {
                     return listOf()
                 }
 
                 val now = OffsetDateTime.now()
                 val diff = ChronoUnit.SECONDS.between(
-                    result.data.keys.last().createdAt,
+                    results.keys.last().createdAt,
                     now
                 )
 
                 if (diff < Constants.CACHE_1_HOUR) {
-                    databaseBooksListMapper.map(result.data)
+                    databaseBooksListMapper.map(results)
                 } else {
                     listOf()
                 }

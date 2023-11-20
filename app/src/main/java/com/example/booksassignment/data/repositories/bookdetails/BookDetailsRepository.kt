@@ -9,5 +9,5 @@ interface BookDetailsRepository {
      * @param id ID of the book.
      * @param forceFetch Set to true to force fetch from network, which will also invalidate cache.
      */
-    suspend fun getByBookId(id: Int, forceFetch: Boolean = false): CustomResult<BookDetails>
+    suspend fun getByBookId(id: Int, forceFetch: Boolean = false): CustomResult<BookDetails?>
 }

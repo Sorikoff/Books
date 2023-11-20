@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">Books Assignment</string>
+    <string name="book">Book</string>
 
     <string name="all">ALL</string>
     <string name="image_of_the_book">Image of the book</string>
     <string name="image_back_button">Back button</string>
+
+    <string name="author">Author: %1$s</string>
+    <string name="isbn">ISBN: %1$s</string>
+    <string name="publication_date">Publication Date: %1$s</string>
 </resources>

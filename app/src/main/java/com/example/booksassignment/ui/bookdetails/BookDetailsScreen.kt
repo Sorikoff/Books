@@ -1,23 +1,16 @@
-package com.example.booksassignment.ui.books
+package com.example.booksassignment.ui.bookdetails
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -30,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,21 +31,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.booksassignment.Constants
 import com.example.booksassignment.R
-import com.example.booksassignment.data.models.Book
-import com.example.booksassignment.ui.theme.BlueWhite
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
 import com.example.booksassignment.ui.widgets.CommonLoadingCircularView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BooksScreen(
-    listId: Int,
-    listTitle: String,
+fun BookDetailsScreen(
+    bookId: Int,
     navController: NavController,
-    viewModel: BooksViewModel = hiltViewModel()
+    viewModel: BookDetailsViewModel = hiltViewModel()
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -67,7 +57,7 @@ fun BooksScreen(
     }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.loadBooksByListId(listId)
+        viewModel.loadBookDetailsByBookId(bookId)
     }
 
     Scaffold(
@@ -75,8 +65,10 @@ fun BooksScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = listTitle,
-                        style = Typography.titleLarge
+                        text = stringResource(id = R.string.book),
+                        style = Typography.titleLarge,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
                     )
                 },
                 navigationIcon = {
@@ -104,48 +96,13 @@ fun BooksScreen(
             if (uiState.isLoading) {
                 CommonLoadingCircularView()
             } else {
-                Books(
-                    books = uiState.books,
-                    onItemClicked = { bookId ->
-                        navController.navigate("${Constants.ROUTE_BOOK_DETAILS}/$bookId")
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun Books(
-    books: List<Book>,
-    onItemClicked: (id: Int) -> Unit
-) {
-    LazyColumn(
-        modifier = horizontalPaddingModifier
-    ) {
-        items(
-            items = books,
-            key = { item -> item.id }
-        ) { book ->
-            val onClick = remember {
-                {
-                    onItemClicked(book.id)
-                }
-            }
-            OutlinedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .clickable(onClick = onClick),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = BlueWhite
-                ),
-                shape = ShapeDefaults.Small
-            ) {
-                Book(
-                    title = book.title,
-                    img = book.img
+                BookDetails(
+                    img = uiState.bookDetails?.img ?: "",
+                    title = uiState.bookDetails?.title ?: "",
+                    author = uiState.bookDetails?.author ?: "",
+                    isbn = uiState.bookDetails?.isbn ?: "",
+                    publicationDate = uiState.bookDetails?.publicationDate ?: "",
+                    description = uiState.bookDetails?.description ?: ""
                 )
             }
         }
@@ -154,28 +111,60 @@ fun Books(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Book(
+fun BookDetails(
+    img: String,
     title: String,
-    img: String
+    author: String,
+    isbn: String,
+    publicationDate: String,
+    description: String
 ) {
-    Row(
-        modifier = horizontalPaddingModifier
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Column(
+        modifier = horizontalPaddingModifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         GlideImage(
             model = img,
             contentDescription = stringResource(id = R.string.image_of_the_book),
             modifier = Modifier
-                .size(width = 90.dp, height = 150.dp),
+                .size(width = 180.dp, height = 240.dp),
             contentScale = ContentScale.Crop
         )
         Text(
             text = title,
+            style = Typography.bodyLarge,
             fontStyle = FontStyle.Italic,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 2,
-            style = Typography.bodyLarge
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = stringResource(
+                id = R.string.author,
+                author
+            ),
+            style = Typography.bodyMedium
+        )
+        if (isbn.isNotEmpty()) {
+            Text(
+                text = stringResource(
+                    id = R.string.isbn,
+                    isbn
+                ),
+                style = Typography.bodyMedium
+            )
+        }
+        if (publicationDate.isNotEmpty()) {
+            Text(
+                text = stringResource(
+                    id = R.string.publication_date,
+                    publicationDate
+                ),
+                style = Typography.bodyMedium
+            )
+        }
+        Divider()
+        Text(
+            text = description,
+            style = Typography.bodySmall
         )
     }
 }

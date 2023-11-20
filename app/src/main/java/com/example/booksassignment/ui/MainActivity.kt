@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.booksassignment.Constants
+import com.example.booksassignment.ui.bookdetails.BookDetailsScreen
 import com.example.booksassignment.ui.books.BooksScreen
 import com.example.booksassignment.ui.home.HomeScreen
 import com.example.booksassignment.ui.theme.BooksTheme
@@ -54,8 +55,9 @@ class MainActivity : ComponentActivity() {
                     navController = navController
                 )
             }
+
             composable(
-                route = Constants.ROUTE_BOOKS_LIST_ID,
+                route = Constants.ROUTE_BOOKS_ID_TITLE,
                 arguments = listOf(
                     navArgument(Constants.ROUTE_LIST_ID) {
                         type = NavType.IntType
@@ -70,6 +72,21 @@ class MainActivity : ComponentActivity() {
                 BooksScreen(
                     listId = listId,
                     listTitle = listTitle,
+                    navController = navController
+                )
+            }
+
+            composable(
+                route = Constants.ROUTE_BOOK_DETAILS_LIST_ID,
+                arguments = listOf(
+                    navArgument(Constants.ROUTE_BOOK_ID) {
+                        type = NavType.IntType
+                    }
+                )
+            ) { entry ->
+                val bookId = entry.arguments?.getInt(Constants.ROUTE_BOOK_ID) ?: 1
+                BookDetailsScreen(
+                    bookId = bookId,
                     navController = navController
                 )
             }

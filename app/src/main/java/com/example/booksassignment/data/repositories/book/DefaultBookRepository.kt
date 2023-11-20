@@ -27,20 +27,9 @@ class DefaultBookRepository @Inject constructor(
 
     override suspend fun getByListId(id: Int, forceFetch: Boolean): CustomResult<List<Book>> {
         if (!forceFetch) {
-            val databaseResult = executeDatabase {
-                bookDao.getByListId(id)
-            }
-            val databaseBooks = when (databaseResult) {
-                is CustomResult.Success -> databaseResult.data
-                is CustomResult.Error -> listOf()
-            }
-
+            val databaseBooks = getByListIdFromDatabase(id)
             if (databaseBooks.isNotEmpty()) {
-                val now = OffsetDateTime.now()
-                val diff = ChronoUnit.SECONDS.between(databaseBooks.last().createdAt, now)
-                if (diff < Constants.CACHE_1_HOUR) {
-                    return CustomResult.Success(databaseBookMapper.map(databaseBooks))
-                }
+                return CustomResult.Success(databaseBooks)
             }
         }
 
@@ -52,12 +41,41 @@ class DefaultBookRepository @Inject constructor(
                 val data = networkBookMapper.map(networkResult.data)
                 bookDao.delete()
                 bookDao.insert(bookDatabaseMapper.map(data))
+
                 // Save all data but return only subset required.
-                val filtered = data.filter { it.listId == id }
-                CustomResult.Success(filtered)
+                val databaseBooks = getByListIdFromDatabase(id)
+                CustomResult.Success(databaseBooks)
             }
 
             is CustomResult.Error -> networkResult
+        }
+    }
+
+    private suspend fun getByListIdFromDatabase(id: Int): List<Book> {
+        val result = executeDatabase {
+            bookDao.getByListId(id)
+        }
+        return when (result) {
+            is CustomResult.Success -> {
+                val results = result.data
+                if (results.isEmpty()) {
+                    return listOf()
+                }
+
+                val now = OffsetDateTime.now()
+                val diff = ChronoUnit.SECONDS.between(
+                    results.last().createdAt,
+                    now
+                )
+
+                if (diff < Constants.CACHE_1_HOUR) {
+                    databaseBookMapper.map(results)
+                } else {
+                    listOf()
+                }
+            }
+
+            is CustomResult.Error -> listOf()
         }
     }
 }

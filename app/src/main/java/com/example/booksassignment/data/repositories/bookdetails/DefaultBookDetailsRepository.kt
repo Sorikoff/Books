@@ -25,22 +25,11 @@ class DefaultBookDetailsRepository @Inject constructor(
     private val networkBookDetailsMapper: NetworkBookDetailsMapper
 ) : BookDetailsRepository {
 
-    override suspend fun getByBookId(id: Int, forceFetch: Boolean): CustomResult<BookDetails> {
+    override suspend fun getByBookId(id: Int, forceFetch: Boolean): CustomResult<BookDetails?> {
         if (!forceFetch) {
-            val databaseResult = executeDatabase {
-                bookDetailsDao.getById(id).firstOrNull()
-            }
-            val databaseBookDetails = when (databaseResult) {
-                is CustomResult.Success -> databaseResult.data
-                is CustomResult.Error -> null
-            }
-
+            val databaseBookDetails = getByBookIdFromDatabase(id)
             if (databaseBookDetails != null) {
-                val now = OffsetDateTime.now()
-                val diff = ChronoUnit.SECONDS.between(databaseBookDetails.createdAt, now)
-                if (diff < Constants.CACHE_1_HOUR) {
-                    return CustomResult.Success(databaseBookDetailsMapper.map(databaseBookDetails))
-                }
+                return CustomResult.Success(databaseBookDetails)
             }
         }
 
@@ -52,10 +41,37 @@ class DefaultBookDetailsRepository @Inject constructor(
                 val data = networkBookDetailsMapper.map(networkResult.data)
                 bookDetailsDao.delete()
                 bookDetailsDao.insert(bookDetailsDatabaseMapper.map(data))
-                CustomResult.Success(data)
+
+                val databaseBookDetails = getByBookIdFromDatabase(id)
+                CustomResult.Success(databaseBookDetails)
             }
 
             is CustomResult.Error -> networkResult
+        }
+    }
+
+    private suspend fun getByBookIdFromDatabase(id: Int): BookDetails? {
+        val result = executeDatabase {
+            bookDetailsDao.getById(id).firstOrNull()
+        }
+        return when (result) {
+            is CustomResult.Success -> {
+                val results = result.data ?: return null
+
+                val now = OffsetDateTime.now()
+                val diff = ChronoUnit.SECONDS.between(
+                    results.createdAt,
+                    now
+                )
+
+                if (diff < Constants.CACHE_1_HOUR) {
+                    databaseBookDetailsMapper.map(results)
+                } else {
+                    null
+                }
+            }
+
+            is CustomResult.Error -> null
         }
     }
 }

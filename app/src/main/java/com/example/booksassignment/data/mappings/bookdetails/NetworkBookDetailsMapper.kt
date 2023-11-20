@@ -11,8 +11,8 @@ class NetworkBookDetailsMapper @Inject constructor() : DtoMapper<BookDetailsMode
         return BookDetails(
             id = input.id,
             listId = input.listId,
-            isbn = input.isbn,
-            publicationDate = input.publicationDate,
+            isbn = input.isbn ?: "",
+            publicationDate = input.publicationDate ?: "",
             author = input.author,
             title = input.title,
             img = input.img,
