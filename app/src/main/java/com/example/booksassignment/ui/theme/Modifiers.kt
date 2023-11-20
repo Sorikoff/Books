@@ -7,6 +7,3 @@ import androidx.compose.ui.unit.dp
 
 val horizontalPaddingModifier = Modifier
     .padding(horizontal = 16.dp)
-
-val spacerModifier = Modifier
-    .height(32.dp)

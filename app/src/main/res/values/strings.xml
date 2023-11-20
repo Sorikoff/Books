@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Books Assignment</string>
 
-    <string name="all">All</string>
+    <string name="all">ALL</string>
     <string name="image_of_the_book">Image of the book</string>
+    <string name="image_back_button">Back button</string>
 </resources>

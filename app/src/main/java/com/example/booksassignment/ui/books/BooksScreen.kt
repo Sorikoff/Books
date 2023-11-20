@@ -1,4 +1,4 @@
-package com.example.booksassignment.ui.home
+package com.example.booksassignment.ui.books
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -7,29 +7,28 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,10 +36,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.booksassignment.Constants
 import com.example.booksassignment.R
 import com.example.booksassignment.data.models.Book
-import com.example.booksassignment.data.models.BooksList
 import com.example.booksassignment.ui.theme.BlueWhite
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
@@ -48,9 +45,11 @@ import com.example.booksassignment.ui.widgets.CommonLoadingCircularView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
+fun BooksScreen(
+    listId: Int,
+    listTitle: String,
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: BooksViewModel = hiltViewModel()
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -65,14 +64,30 @@ fun HomeScreen(
         }
     }
 
+    LaunchedEffect(key1 = Unit) {
+        viewModel.loadBooksByListId(listId)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.app_name),
+                        text = listTitle,
                         style = Typography.titleLarge
                     )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = navController::navigateUp,
+                        modifier = Modifier
+                            .size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.KeyboardArrowLeft,
+                            contentDescription = stringResource(id = R.string.image_back_button)
+                        )
+                    }
                 }
             )
         },
@@ -87,11 +102,8 @@ fun HomeScreen(
             if (uiState.isLoading) {
                 CommonLoadingCircularView()
             } else {
-                BooksLists(
-                    booksLists = uiState.booksLists,
-                    onAllClicked = { listId, listTitle ->
-                        navController.navigate("${Constants.ROUTE_BOOKS}/$listId/$listTitle")
-                    }
+                Books(
+                    books = uiState.books
                 )
             }
         }
@@ -99,17 +111,16 @@ fun HomeScreen(
 }
 
 @Composable
-fun BooksLists(
-    booksLists: List<BooksList>,
-    onAllClicked: (id: Int, title: String) -> Unit
+fun Books(
+    books: List<Book>
 ) {
     LazyColumn(
         modifier = horizontalPaddingModifier
     ) {
         items(
-            items = booksLists,
+            items = books,
             key = { item -> item.id }
-        ) { booksList ->
+        ) { book ->
             OutlinedCard(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -120,87 +131,39 @@ fun BooksLists(
                 ),
                 shape = ShapeDefaults.Small
             ) {
-                BooksListTitle(
-                    id = booksList.id,
-                    title = booksList.title,
-                    onAllClicked = onAllClicked
-                )
-                BooksListContent(
-                    books = booksList.books
+                Book(
+                    title = book.title,
+                    img = book.img
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun BooksListTitle(
-    id: Int,
-    title: String,
-    onAllClicked: (id: Int, title: String) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, top = 8.dp, end = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = Typography.bodyLarge
-        )
-        val onClick = remember {
-            {
-                onAllClicked(id, title)
-            }
-        }
-        TextButton(
-            onClick = onClick,
-            border = BorderStroke(1.dp, BlueWhite)
-        ) {
-            Text(
-                text = stringResource(id = R.string.all),
-                fontWeight = FontWeight.Bold
-            )
         }
     }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun BooksListContent(
-    books: List<Book>
+fun Book(
+    title: String,
+    img: String
 ) {
-    LazyRow(
-        modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+    Row(
+        modifier = horizontalPaddingModifier
+            .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(
-            items = books,
-            key = { item -> item.id }
-        ) { book ->
-            Column(
-                modifier = Modifier
-                    .width(width = 120.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                GlideImage(
-                    model = book.img,
-                    contentDescription = stringResource(id = R.string.image_of_the_book),
-                    modifier = Modifier
-                        .size(width = 120.dp, height = 200.dp),
-                    contentScale = ContentScale.Crop
-                )
-                Text(
-                    text = book.title,
-                    fontStyle = FontStyle.Italic,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    style = Typography.bodyMedium
-                )
-            }
-        }
+        GlideImage(
+            model = img,
+            contentDescription = stringResource(id = R.string.image_of_the_book),
+            modifier = Modifier
+                .size(width = 90.dp, height = 150.dp),
+            contentScale = ContentScale.Crop
+        )
+        Text(
+            text = title,
+            fontStyle = FontStyle.Italic,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 2,
+            style = Typography.bodyLarge
+        )
     }
 }

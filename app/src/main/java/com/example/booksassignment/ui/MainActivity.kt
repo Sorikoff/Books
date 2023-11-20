@@ -9,10 +9,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.booksassignment.Constants
+import com.example.booksassignment.ui.books.BooksScreen
 import com.example.booksassignment.ui.home.HomeScreen
 import com.example.booksassignment.ui.theme.BooksTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,8 +47,31 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AppNavHost(navController: NavHostController) {
         NavHost(navController = navController, startDestination = Constants.ROUTE_HOME) {
-            composable(Constants.ROUTE_HOME) {
-                HomeScreen()
+            composable(
+                route = Constants.ROUTE_HOME
+            ) {
+                HomeScreen(
+                    navController = navController
+                )
+            }
+            composable(
+                route = Constants.ROUTE_BOOKS_LIST_ID,
+                arguments = listOf(
+                    navArgument(Constants.ROUTE_LIST_ID) {
+                        type = NavType.IntType
+                    },
+                    navArgument(Constants.ROUTE_LIST_TITLE) {
+                        type = NavType.StringType
+                    }
+                )
+            ) { entry ->
+                val listId = entry.arguments?.getInt(Constants.ROUTE_LIST_ID) ?: 1
+                val listTitle = entry.arguments?.getString(Constants.ROUTE_LIST_TITLE) ?: ""
+                BooksScreen(
+                    listId = listId,
+                    listTitle = listTitle,
+                    navController = navController
+                )
             }
         }
     }
