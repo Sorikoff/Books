@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,7 +39,7 @@ import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
 import com.example.booksassignment.ui.widgets.CommonLoadingCircularView
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun BookDetailsScreen(
     bookId: Int,
@@ -89,9 +92,16 @@ fun BookDetailsScreen(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = uiState.isLoading,
+            onRefresh = {
+                viewModel.refresh(bookId)
+            }
+        )
         Column(
             modifier = Modifier
                 .padding(paddingValues)
+                .pullRefresh(pullRefreshState)
         ) {
             if (uiState.isLoading) {
                 CommonLoadingCircularView()

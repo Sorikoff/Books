@@ -24,13 +24,13 @@ class HomeViewModel @Inject constructor(
         loadBooksLists()
     }
 
-    private fun loadBooksLists() {
+    private fun loadBooksLists(forceFetch: Boolean = false) {
         _uiState.update { currentUiState ->
             currentUiState.copy(isLoading = true)
         }
 
         viewModelScope.launch {
-            when (val result = booksListRepository.getAll()) {
+            when (val result = booksListRepository.getAll(forceFetch)) {
                 is CustomResult.Success -> {
                     _uiState.update { currentUiState ->
                         currentUiState.copy(
@@ -50,6 +50,10 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun refresh() {
+        loadBooksLists(forceFetch = true)
     }
 
     fun clearError() {

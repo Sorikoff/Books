@@ -20,13 +20,13 @@ class BookDetailsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(BookDetailsUiState())
     val uiState: StateFlow<BookDetailsUiState> = _uiState
 
-    fun loadBookDetailsByBookId(id: Int) {
+    fun loadBookDetailsByBookId(id: Int, forceFetch: Boolean = true) {
         _uiState.update { currentUiState ->
             currentUiState.copy(isLoading = true)
         }
 
         viewModelScope.launch {
-            when (val result = bookDetailsRepository.getByBookId(id)) {
+            when (val result = bookDetailsRepository.getByBookId(id, forceFetch)) {
                 is CustomResult.Success -> {
                     _uiState.update { currentUiState ->
                         currentUiState.copy(
@@ -46,6 +46,13 @@ class BookDetailsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun refresh(id: Int) {
+        loadBookDetailsByBookId(
+            id = id,
+            forceFetch = true
+        )
     }
 
     fun clearError() {
