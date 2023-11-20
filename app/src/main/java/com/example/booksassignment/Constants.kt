@@ -7,4 +7,6 @@ object Constants {
     const val CACHE_1_HOUR = 60 * 60
 
     const val DATABASE_NAME = "AppDatabase"
+
+    const val ROUTE_HOME = "ROUTE_HOME"
 }
