@@ -9,12 +9,12 @@ import retrofit2.http.Path
 
 interface ApiService {
 
-    @GET("/book/{id}")
+    @GET("book/{id}")
     suspend fun getBook(@Path("id") id: Int): Response<BookDetailsModel>
 
-    @GET("/books")
+    @GET("books")
     suspend fun getBooks(): Response<List<BookModel>>
 
-    @GET("/lists")
+    @GET("lists")
     suspend fun getBooksLists(): Response<List<BooksListModel>>
 }

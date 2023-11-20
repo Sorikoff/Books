@@ -51,9 +51,10 @@ class DefaultBookDetailsRepository @Inject constructor(
             is CustomResult.Success -> {
                 val data = networkBookDetailsMapper.map(networkResult.data)
                 bookDetailsDao.delete()
-                bookDetailsDao.create(bookDetailsDatabaseMapper.map(data))
+                bookDetailsDao.insert(bookDetailsDatabaseMapper.map(data))
                 CustomResult.Success(data)
             }
+
             is CustomResult.Error -> networkResult
         }
     }

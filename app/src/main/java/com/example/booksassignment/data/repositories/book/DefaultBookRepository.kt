@@ -51,11 +51,12 @@ class DefaultBookRepository @Inject constructor(
             is CustomResult.Success -> {
                 val data = networkBookMapper.map(networkResult.data)
                 bookDao.delete()
-                bookDao.create(bookDatabaseMapper.map(data))
+                bookDao.insert(bookDatabaseMapper.map(data))
                 // Save all data but return only subset required.
                 val filtered = data.filter { it.listId == id }
                 CustomResult.Success(filtered)
             }
+
             is CustomResult.Error -> networkResult
         }
     }

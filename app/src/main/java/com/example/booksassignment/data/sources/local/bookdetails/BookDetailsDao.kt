@@ -8,12 +8,12 @@ import androidx.room.Query
 @Dao
 interface BookDetailsDao {
 
+    @Query("SELECT * FROM BookDetails WHERE id = :id")
+    suspend fun getById(id: Int): List<BookDetailsEntity>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun create(book: BookDetailsEntity)
+    suspend fun insert(book: BookDetailsEntity)
 
     @Query("DELETE FROM BookDetails")
     suspend fun delete()
-
-    @Query("SELECT * FROM BookDetails WHERE id = :id")
-    suspend fun getById(id: Int): List<BookDetailsEntity>
 }

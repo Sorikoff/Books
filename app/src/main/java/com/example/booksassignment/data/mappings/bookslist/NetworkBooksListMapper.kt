@@ -11,7 +11,8 @@ class NetworkBooksListMapper @Inject constructor() : DtoListMapper<BooksListMode
         return input.map { book ->
             BooksList(
                 id = book.id,
-                title = book.title
+                title = book.title,
+                books = listOf()
             )
         }
     }
