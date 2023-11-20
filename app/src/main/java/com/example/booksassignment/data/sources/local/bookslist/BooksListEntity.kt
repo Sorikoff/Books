@@ -1,4 +1,4 @@
-package com.example.booksassignment.data.sources.local.entities
+package com.example.booksassignment.data.sources.local.bookslist
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -9,9 +9,9 @@ import java.time.OffsetDateTime
 data class BooksListEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Int,
+    var id: Int,
     @ColumnInfo(name = "title")
-    val title: String,
+    var title: String,
     @ColumnInfo(name = "created_at")
     var createdAt: OffsetDateTime? = null
 )

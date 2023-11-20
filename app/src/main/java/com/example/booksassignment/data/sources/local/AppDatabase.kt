@@ -3,12 +3,12 @@ package com.example.booksassignment.data.sources.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.booksassignment.data.sources.local.dao.BookDao
-import com.example.booksassignment.data.sources.local.dao.BookDetailsDao
-import com.example.booksassignment.data.sources.local.dao.BooksListDao
-import com.example.booksassignment.data.sources.local.entities.BookDetailsEntity
-import com.example.booksassignment.data.sources.local.entities.BookEntity
-import com.example.booksassignment.data.sources.local.entities.BooksListEntity
+import com.example.booksassignment.data.sources.local.book.BookDao
+import com.example.booksassignment.data.sources.local.bookdetails.BookDetailsDao
+import com.example.booksassignment.data.sources.local.bookslist.BooksListDao
+import com.example.booksassignment.data.sources.local.bookdetails.BookDetailsEntity
+import com.example.booksassignment.data.sources.local.book.BookEntity
+import com.example.booksassignment.data.sources.local.bookslist.BooksListEntity
 
 @Database(
     entities = [

@@ -1,4 +1,4 @@
-package com.example.booksassignment.data.sources.remote.models
+package com.example.booksassignment.data.sources.remote.bookslist
 
 import com.google.gson.annotations.SerializedName
 

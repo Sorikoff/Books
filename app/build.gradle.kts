@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
 }
 
@@ -44,6 +45,7 @@ android {
 
 dependencies {
     val navigation = "2.7.5"
+    val hilt = "2.48.1"
     val room = "2.6.0"
     val retrofit = "2.9.0"
 
@@ -56,6 +58,10 @@ dependencies {
 
     // Material Design
     implementation("com.google.android.material:material:1.10.0")
+
+    // Dependency Injection
+    implementation("com.google.dagger:hilt-android:$hilt")
+    ksp("com.google.dagger:hilt-compiler:$hilt")
 
     // Database
     implementation("androidx.room:room-runtime:$room")

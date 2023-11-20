@@ -1,13 +1,14 @@
-package com.example.booksassignment.data.sources.local.entities
+package com.example.booksassignment.data.sources.local.book
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.example.booksassignment.data.sources.local.bookslist.BooksListEntity
 import java.time.OffsetDateTime
 
 @Entity(
-    tableName = "BookDetails",
+    tableName = "Book",
     foreignKeys = [ForeignKey(
         entity = BooksListEntity::class,
         parentColumns = arrayOf("id"),
@@ -16,24 +17,16 @@ import java.time.OffsetDateTime
         onDelete = ForeignKey.CASCADE
     )]
 )
-data class BookDetailsEntity(
+data class BookEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Int,
+    var id: Int,
     @ColumnInfo(name = "list_id", index = true)
-    val listId: Int,
-    @ColumnInfo(name = "isbn")
-    val isbn: String,
-    @ColumnInfo(name = "publication_date")
-    val publicationDate: String,
-    @ColumnInfo(name = "author")
-    val author: String,
+    var listId: Int,
     @ColumnInfo(name = "title")
-    val title: String,
+    var title: String,
     @ColumnInfo(name = "img")
-    val img: String,
-    @ColumnInfo(name = "description")
-    val description: String,
+    var img: String,
     @ColumnInfo(name = "created_at")
     var createdAt: OffsetDateTime? = null
 )

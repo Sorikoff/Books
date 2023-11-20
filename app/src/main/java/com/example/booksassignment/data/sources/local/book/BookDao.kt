@@ -1,10 +1,9 @@
-package com.example.booksassignment.data.sources.local.dao
+package com.example.booksassignment.data.sources.local.book
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.booksassignment.data.sources.local.entities.BookEntity
 
 @Dao
 interface BookDao {
@@ -15,6 +14,6 @@ interface BookDao {
     @Query("DELETE FROM Book")
     suspend fun delete()
 
-    @Query("SELECT * FROM Book")
-    suspend fun getAll(): List<BookEntity>
+    @Query("SELECT * FROM Book WHERE list_id = :listId")
+    suspend fun getByListId(listId: Int): List<BookEntity>
 }

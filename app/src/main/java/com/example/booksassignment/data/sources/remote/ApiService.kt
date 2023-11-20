@@ -1,8 +1,8 @@
 package com.example.booksassignment.data.sources.remote
 
-import com.example.booksassignment.data.sources.remote.models.BookModel
-import com.example.booksassignment.data.sources.remote.models.BookDetailsModel
-import com.example.booksassignment.data.sources.remote.models.BooksListModel
+import com.example.booksassignment.data.sources.remote.book.BookModel
+import com.example.booksassignment.data.sources.remote.bookdetails.BookDetailsModel
+import com.example.booksassignment.data.sources.remote.bookslist.BooksListModel
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
