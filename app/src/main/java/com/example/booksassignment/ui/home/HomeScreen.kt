@@ -2,47 +2,47 @@ package com.example.booksassignment.ui.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import com.example.booksassignment.R
 import com.example.booksassignment.data.models.Book
 import com.example.booksassignment.data.models.BooksList
 import com.example.booksassignment.ui.theme.BlueWhite
 import com.example.booksassignment.ui.theme.Typography
+import com.example.booksassignment.ui.theme.horizontalPaddingModifier
+import com.example.booksassignment.ui.theme.spacerModifier
+import com.example.booksassignment.ui.widgets.CommonLoadingCircularView
 
 @Composable
 fun HomeScreen(
@@ -50,37 +50,40 @@ fun HomeScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold { paddingValues ->
+    if (uiState.isError) {
+        LaunchedEffect(key1 = snackbarHostState) {
+            snackbarHostState.showSnackbar(
+                message = uiState.errorMessage ?: ""
+            )
+            viewModel.clearError()
+        }
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(paddingValues),
-            horizontalAlignment = Alignment.Start
+                .padding(paddingValues)
         ) {
             if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(24.dp)
-                    )
-                }
+                CommonLoadingCircularView()
             } else {
                 Spacer(
-                    modifier = Modifier
-                        .height(32.dp)
+                    modifier = spacerModifier
                 )
                 Text(
                     text = stringResource(R.string.app_name),
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp),
-                    style = Typography.bodyLarge
+                    modifier = horizontalPaddingModifier,
+                    style = Typography.titleLarge
                 )
                 BooksLists(
-                    booksLists = uiState.booksLists
+                    booksLists = uiState.booksLists,
+                    modifier = horizontalPaddingModifier
                 )
             }
         }
@@ -89,18 +92,60 @@ fun HomeScreen(
 
 @Composable
 fun BooksLists(
-    booksLists: List<BooksList>
+    booksLists: List<BooksList>,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier.verticalScroll(
-            enabled = true,
-            state = rememberScrollState()
-        )
+    LazyColumn(
+        modifier = modifier
     ) {
-        booksLists.forEach { booksList ->
-            BooksList(
-                title = booksList.title,
-                books = booksList.books
+        items(
+            items = booksLists,
+            key = { item -> item.id }
+        ) { booksList ->
+            OutlinedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = BlueWhite
+                ),
+                shape = ShapeDefaults.Small
+            ) {
+                BooksListTitle(
+                    title = booksList.title
+                )
+                BooksListContent(
+                    books = booksList.books
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BooksListTitle(
+    title: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, top = 4.dp, end = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = Typography.bodyLarge
+        )
+
+        TextButton(
+            onClick = { },
+            border = BorderStroke(1.dp, BlueWhite)
+        ) {
+            Text(
+                text = stringResource(id = R.string.all),
+                fontWeight = FontWeight.Bold
             )
         }
     }
@@ -108,61 +153,36 @@ fun BooksLists(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun BooksList(
-    title: String,
+fun BooksListContent(
     books: List<Book>
 ) {
-    OutlinedCard(
+    LazyRow(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, top = 16.dp, end = 16.dp),
-        border = BorderStroke(
-            width = 1.dp,
-            color = BlueWhite
-        ),
-        shape = ShapeDefaults.Small
+            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, top = 4.dp, end = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = title
-            )
-
-            TextButton(
-                onClick = { },
-                border = BorderStroke(1.dp, BlueWhite)
+        items(
+            items = books,
+            key = { item -> item.id }
+        ) { book ->
+            Column(
+                modifier = Modifier
+                    .width(width = 120.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(id = R.string.all),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        LazyRow(
-            modifier = Modifier
-                .padding(start = 16.dp, bottom = 16.dp, end = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(
-                items = books,
-                key = { item -> item.id }
-            ) { book ->
                 GlideImage(
                     model = book.img,
                     contentDescription = stringResource(id = R.string.image_of_the_book),
-                    loading = placeholder(
-                        painter = rememberVectorPainter(image = Icons.Default.Refresh)
-                    ),
-                    failure = placeholder(
-                        painter = rememberVectorPainter(image = Icons.Default.Warning)
-                    ),
-                    transition = CrossFade
+                    modifier = Modifier
+                        .size(width = 120.dp, height = 200.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Text(
+                    text = book.title,
+                    fontStyle = FontStyle.Italic,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    style = Typography.bodyMedium
                 )
             }
         }

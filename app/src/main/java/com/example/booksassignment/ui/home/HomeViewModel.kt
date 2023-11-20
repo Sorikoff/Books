@@ -41,15 +41,32 @@ class HomeViewModel @Inject constructor(
                 }
                 is CustomResult.Error -> {
                     _uiState.update { currentUiState ->
-                        currentUiState.copy(isLoading = false)
+                        currentUiState.copy(
+                            isLoading = false,
+                            isError = true,
+                            errorMessage = result.exception.localizedMessage
+                        )
                     }
                 }
             }
+        }
+    }
+
+    fun clearError() {
+        _uiState.update { currentUiState ->
+            currentUiState.copy(
+                isError = false,
+                errorMessage = null
+            )
         }
     }
 }
 
 data class HomeUiState(
     val isLoading: Boolean = false,
+
+    val isError: Boolean = false,
+    val errorMessage: String? = null,
+
     val booksLists: List<BooksList> = listOf()
 )
