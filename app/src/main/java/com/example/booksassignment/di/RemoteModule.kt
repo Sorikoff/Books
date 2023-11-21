@@ -1,10 +1,13 @@
 package com.example.booksassignment.di
 
+import android.content.Context
 import com.example.booksassignment.Constants
 import com.example.booksassignment.data.sources.remote.ApiService
+import com.example.booksassignment.data.sources.remote.interceptors.NetworkConnectivityInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -23,8 +26,9 @@ object RemoteModule {
     }
 
     @Provides
-    fun provideApiOkHttpClient(): OkHttpClient {
+    fun provideApiOkHttpClient(@ApplicationContext applicationContext: Context): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(NetworkConnectivityInterceptor(applicationContext))
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
