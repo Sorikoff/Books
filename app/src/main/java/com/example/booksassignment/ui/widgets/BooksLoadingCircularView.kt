@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.example.booksassignment.ui.theme.BooksTheme
 
 @Composable
-fun CommonLoadingCircularView() {
+fun BooksLoadingCircularView() {
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -27,8 +27,8 @@ fun CommonLoadingCircularView() {
 
 @Composable
 @Preview
-private fun CommonLoadingCircularViewPreview() {
+private fun BooksLoadingCircularViewPreview() {
     BooksTheme {
-        CommonLoadingCircularView()
+        BooksLoadingCircularView()
     }
 }

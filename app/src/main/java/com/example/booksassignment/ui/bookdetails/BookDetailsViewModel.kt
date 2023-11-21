@@ -31,14 +31,17 @@ class BookDetailsViewModel @Inject constructor(
                     _uiState.update { currentUiState ->
                         currentUiState.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             bookDetails = result.data
                         )
                     }
                 }
+
                 is CustomResult.Error -> {
                     _uiState.update { currentUiState ->
                         currentUiState.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             isError = true,
                             errorMessage = result.exception.localizedMessage
                         )
@@ -49,6 +52,10 @@ class BookDetailsViewModel @Inject constructor(
     }
 
     fun refresh(id: Int) {
+        _uiState.update { currentUiState ->
+            currentUiState.copy(isRefreshing = true)
+        }
+
         loadBookDetailsByBookId(
             id = id,
             forceFetch = true
@@ -67,6 +74,7 @@ class BookDetailsViewModel @Inject constructor(
 
 data class BookDetailsUiState(
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
 
     val isError: Boolean = false,
     val errorMessage: String? = null,

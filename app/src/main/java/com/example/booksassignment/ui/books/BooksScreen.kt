@@ -3,6 +3,7 @@ package com.example.booksassignment.ui.books
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -46,7 +49,7 @@ import com.example.booksassignment.data.models.Book
 import com.example.booksassignment.ui.theme.BlueWhite
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
-import com.example.booksassignment.ui.widgets.CommonLoadingCircularView
+import com.example.booksassignment.ui.widgets.BooksLoadingCircularView
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -84,9 +87,7 @@ fun BooksScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = navController::navigateUp,
-                        modifier = Modifier
-                            .size(24.dp)
+                        onClick = navController::navigateUp
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.KeyboardArrowLeft,
@@ -100,27 +101,38 @@ fun BooksScreen(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = uiState.isLoading,
-            onRefresh = {
-                viewModel.refresh(listId)
+        Box {
+            val onRefresh = remember {
+                {
+                    viewModel.refresh(listId)
+                }
             }
-        )
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .pullRefresh(pullRefreshState)
-        ) {
-            if (uiState.isLoading) {
-                CommonLoadingCircularView()
-            } else {
-                Books(
-                    books = uiState.books,
-                    onItemClicked = { bookId ->
-                        navController.navigate("${Constants.ROUTE_BOOK_DETAILS}/$bookId")
-                    }
-                )
+            val pullRefreshState = rememberPullRefreshState(
+                refreshing = uiState.isRefreshing,
+                onRefresh = onRefresh
+            )
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .pullRefresh(pullRefreshState)
+            ) {
+                if (uiState.isLoading) {
+                    BooksLoadingCircularView()
+                } else {
+                    Books(
+                        books = uiState.books,
+                        onItemClicked = { bookId ->
+                            navController.navigate("${Constants.ROUTE_BOOK_DETAILS}/$bookId")
+                        }
+                    )
+                }
             }
+            PullRefreshIndicator(
+                refreshing = uiState.isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+            )
         }
     }
 }

@@ -20,7 +20,7 @@ class BooksViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(BooksUiState())
     val uiState: StateFlow<BooksUiState> = _uiState
 
-    fun loadBooksByListId(id: Int, forceFetch: Boolean = true) {
+    fun loadBooksByListId(id: Int, forceFetch: Boolean = false) {
         _uiState.update { currentUiState ->
             currentUiState.copy(isLoading = true)
         }
@@ -31,14 +31,17 @@ class BooksViewModel @Inject constructor(
                     _uiState.update { currentUiState ->
                         currentUiState.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             books = result.data
                         )
                     }
                 }
+
                 is CustomResult.Error -> {
                     _uiState.update { currentUiState ->
                         currentUiState.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             isError = true,
                             errorMessage = result.exception.localizedMessage
                         )
@@ -49,6 +52,10 @@ class BooksViewModel @Inject constructor(
     }
 
     fun refresh(id: Int) {
+        _uiState.update { currentUiState ->
+            currentUiState.copy(isRefreshing = true)
+        }
+
         loadBooksByListId(
             id = id,
             forceFetch = true
@@ -67,6 +74,7 @@ class BooksViewModel @Inject constructor(
 
 data class BooksUiState(
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
 
     val isError: Boolean = false,
     val errorMessage: String? = null,

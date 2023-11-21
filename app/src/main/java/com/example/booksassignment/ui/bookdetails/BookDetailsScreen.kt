@@ -1,12 +1,16 @@
 package com.example.booksassignment.ui.bookdetails
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Divider
@@ -22,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -37,7 +42,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.booksassignment.R
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
-import com.example.booksassignment.ui.widgets.CommonLoadingCircularView
+import com.example.booksassignment.ui.widgets.BooksLoadingCircularView
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -76,9 +81,7 @@ fun BookDetailsScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = navController::navigateUp,
-                        modifier = Modifier
-                            .size(24.dp)
+                        onClick = navController::navigateUp
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.KeyboardArrowLeft,
@@ -92,29 +95,41 @@ fun BookDetailsScreen(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = uiState.isLoading,
-            onRefresh = {
-                viewModel.refresh(bookId)
+
+        Box {
+            val onRefresh = remember {
+                {
+                    viewModel.refresh(bookId)
+                }
             }
-        )
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .pullRefresh(pullRefreshState)
-        ) {
-            if (uiState.isLoading) {
-                CommonLoadingCircularView()
-            } else {
-                BookDetails(
-                    img = uiState.bookDetails?.img ?: "",
-                    title = uiState.bookDetails?.title ?: "",
-                    author = uiState.bookDetails?.author ?: "",
-                    isbn = uiState.bookDetails?.isbn ?: "",
-                    publicationDate = uiState.bookDetails?.publicationDate ?: "",
-                    description = uiState.bookDetails?.description ?: ""
-                )
+            val pullRefreshState = rememberPullRefreshState(
+                refreshing = uiState.isRefreshing,
+                onRefresh = onRefresh
+            )
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .pullRefresh(pullRefreshState)
+            ) {
+                if (uiState.isLoading) {
+                    BooksLoadingCircularView()
+                } else {
+                    BookDetails(
+                        img = uiState.bookDetails?.img ?: "",
+                        title = uiState.bookDetails?.title ?: "",
+                        author = uiState.bookDetails?.author ?: "",
+                        isbn = uiState.bookDetails?.isbn ?: "",
+                        publicationDate = uiState.bookDetails?.publicationDate ?: "",
+                        description = uiState.bookDetails?.description ?: ""
+                    )
+                }
             }
+            PullRefreshIndicator(
+                refreshing = uiState.isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+            )
         }
     }
 }
@@ -130,7 +145,8 @@ fun BookDetails(
     description: String
 ) {
     Column(
-        modifier = horizontalPaddingModifier,
+        modifier = horizontalPaddingModifier
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         GlideImage(

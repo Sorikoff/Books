@@ -2,6 +2,7 @@ package com.example.booksassignment.ui.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,7 +49,7 @@ import com.example.booksassignment.data.models.BooksList
 import com.example.booksassignment.ui.theme.BlueWhite
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
-import com.example.booksassignment.ui.widgets.CommonLoadingCircularView
+import com.example.booksassignment.ui.widgets.BooksLoadingCircularView
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -83,25 +85,33 @@ fun HomeScreen(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = uiState.isLoading,
-            onRefresh = viewModel::refresh
-        )
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .pullRefresh(pullRefreshState)
-        ) {
-            if (uiState.isLoading) {
-                CommonLoadingCircularView()
-            } else {
-                BooksLists(
-                    booksLists = uiState.booksLists,
-                    onAllClicked = { listId, listTitle ->
-                        navController.navigate("${Constants.ROUTE_BOOKS}/$listId/$listTitle")
-                    }
-                )
+        Box {
+            val pullRefreshState = rememberPullRefreshState(
+                refreshing = uiState.isRefreshing,
+                onRefresh = viewModel::refresh
+            )
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .pullRefresh(pullRefreshState)
+            ) {
+                if (uiState.isLoading) {
+                    BooksLoadingCircularView()
+                } else {
+                    BooksLists(
+                        booksLists = uiState.booksLists,
+                        onAllClicked = { listId, listTitle ->
+                            navController.navigate("${Constants.ROUTE_BOOKS}/$listId/$listTitle")
+                        }
+                    )
+                }
             }
+            PullRefreshIndicator(
+                refreshing = uiState.isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+            )
         }
     }
 }
