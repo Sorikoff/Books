@@ -49,6 +49,7 @@ import com.example.booksassignment.data.models.BooksList
 import com.example.booksassignment.ui.theme.BlueWhite
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
+import com.example.booksassignment.ui.widgets.BooksEmptyView
 import com.example.booksassignment.ui.widgets.BooksLoadingCircularView
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -98,12 +99,18 @@ fun HomeScreen(
                 if (uiState.isLoading) {
                     BooksLoadingCircularView()
                 } else {
-                    BooksLists(
-                        booksLists = uiState.booksLists,
-                        onAllClicked = { listId, listTitle ->
-                            navController.navigate("${Constants.ROUTE_BOOKS}/$listId/$listTitle")
-                        }
-                    )
+                    if (uiState.booksLists.isEmpty()) {
+                        BooksEmptyView(
+                            textId = R.string.no_book_lists_found
+                        )
+                    } else {
+                        BooksLists(
+                            booksLists = uiState.booksLists,
+                            onAllClicked = { listId, listTitle ->
+                                navController.navigate("${Constants.ROUTE_BOOKS}/$listId/$listTitle")
+                            }
+                        )
+                    }
                 }
             }
             PullRefreshIndicator(

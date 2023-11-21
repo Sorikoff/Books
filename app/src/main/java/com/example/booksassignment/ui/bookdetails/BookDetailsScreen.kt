@@ -42,6 +42,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.booksassignment.R
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
+import com.example.booksassignment.ui.widgets.BooksEmptyView
 import com.example.booksassignment.ui.widgets.BooksLoadingCircularView
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -95,7 +96,6 @@ fun BookDetailsScreen(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
-
         Box {
             val onRefresh = remember {
                 {
@@ -114,14 +114,20 @@ fun BookDetailsScreen(
                 if (uiState.isLoading) {
                     BooksLoadingCircularView()
                 } else {
-                    BookDetails(
-                        img = uiState.bookDetails?.img ?: "",
-                        title = uiState.bookDetails?.title ?: "",
-                        author = uiState.bookDetails?.author ?: "",
-                        isbn = uiState.bookDetails?.isbn ?: "",
-                        publicationDate = uiState.bookDetails?.publicationDate ?: "",
-                        description = uiState.bookDetails?.description ?: ""
-                    )
+                    if (uiState.bookDetails == null) {
+                        BooksEmptyView(
+                            textId = R.string.no_book_details_found
+                        )
+                    } else {
+                        BookDetails(
+                            img = uiState.bookDetails?.img ?: "",
+                            title = uiState.bookDetails?.title ?: "",
+                            author = uiState.bookDetails?.author ?: "",
+                            isbn = uiState.bookDetails?.isbn ?: "",
+                            publicationDate = uiState.bookDetails?.publicationDate ?: "",
+                            description = uiState.bookDetails?.description ?: ""
+                        )
+                    }
                 }
             }
             PullRefreshIndicator(

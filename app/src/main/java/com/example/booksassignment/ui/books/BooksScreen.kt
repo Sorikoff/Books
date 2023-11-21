@@ -49,6 +49,7 @@ import com.example.booksassignment.data.models.Book
 import com.example.booksassignment.ui.theme.BlueWhite
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
+import com.example.booksassignment.ui.widgets.BooksEmptyView
 import com.example.booksassignment.ui.widgets.BooksLoadingCircularView
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -119,12 +120,18 @@ fun BooksScreen(
                 if (uiState.isLoading) {
                     BooksLoadingCircularView()
                 } else {
-                    Books(
-                        books = uiState.books,
-                        onItemClicked = { bookId ->
-                            navController.navigate("${Constants.ROUTE_BOOK_DETAILS}/$bookId")
-                        }
-                    )
+                    if (uiState.books.isEmpty()) {
+                        BooksEmptyView(
+                            textId = R.string.no_books_found
+                        )
+                    } else {
+                        Books(
+                            books = uiState.books,
+                            onItemClicked = { bookId ->
+                                navController.navigate("${Constants.ROUTE_BOOK_DETAILS}/$bookId")
+                            }
+                        )
+                    }
                 }
             }
             PullRefreshIndicator(

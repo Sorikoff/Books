@@ -9,4 +9,8 @@
     <string name="author">Author: %1$s</string>
     <string name="isbn">ISBN: %1$s</string>
     <string name="publication_date">Publication Date: %1$s</string>
+
+    <string name="no_books_found">No books found</string>
+    <string name="no_book_lists_found">No book lists found</string>
+    <string name="no_book_details_found">No book details available</string>
 </resources>
