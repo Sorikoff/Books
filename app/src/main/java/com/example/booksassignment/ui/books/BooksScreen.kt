@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -34,8 +33,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,10 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.booksassignment.Constants
 import com.example.booksassignment.R
 import com.example.booksassignment.data.models.Book
@@ -168,7 +165,7 @@ fun Books(
             OutlinedCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
+                    .padding(bottom = 16.dp)
                     .clickable(onClick = onClick),
                 border = BorderStroke(
                     width = 1.dp,
@@ -186,7 +183,6 @@ fun Books(
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Book(
     title: String,
@@ -198,17 +194,18 @@ fun Book(
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val painter = rememberVectorPainter(
-            image = Icons.Default.AccountBox
-        )
-        GlideImage(
-            model = img,
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(img)
+                .placeholder(
+                    drawableResId = R.drawable.placeholder
+                )
+                .crossfade(true)
+                .build(),
             contentDescription = stringResource(id = R.string.image_of_the_book),
             modifier = Modifier
                 .size(width = 90.dp, height = 150.dp),
-            contentScale = ContentScale.Crop,
-            loading = placeholder(painter = painter), // FIXME: https://github.com/bumptech/glide/issues/5308
-            transition = CrossFade
+            contentScale = ContentScale.Crop
         )
         Column {
             Text(

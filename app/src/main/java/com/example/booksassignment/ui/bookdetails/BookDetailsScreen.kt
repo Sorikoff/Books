@@ -9,7 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -29,8 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -39,10 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.booksassignment.R
 import com.example.booksassignment.ui.theme.Typography
 import com.example.booksassignment.ui.theme.horizontalPaddingModifier
@@ -144,7 +141,6 @@ fun BookDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun BookDetails(
     img: String,
@@ -159,17 +155,18 @@ fun BookDetails(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val painter = rememberVectorPainter(
-            image = Icons.Default.AccountBox
-        )
-        GlideImage(
-            model = img,
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(img)
+                .placeholder(
+                    drawableResId = R.drawable.placeholder
+                )
+                .crossfade(true)
+                .build(),
             contentDescription = stringResource(id = R.string.image_of_the_book),
             modifier = Modifier
                 .size(width = 150.dp, height = 250.dp),
-            contentScale = ContentScale.Crop,
-            loading = placeholder(painter = painter), // FIXME: https://github.com/bumptech/glide/issues/5308
-            transition = CrossFade
+            contentScale = ContentScale.Crop
         )
         Text(
             text = title,
