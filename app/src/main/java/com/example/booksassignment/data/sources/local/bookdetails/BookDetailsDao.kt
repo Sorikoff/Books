@@ -14,6 +14,6 @@ interface BookDetailsDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(book: BookDetailsEntity)
 
-    @Query("DELETE FROM BookDetails")
-    suspend fun delete()
+    @Query("DELETE FROM BookDetails WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

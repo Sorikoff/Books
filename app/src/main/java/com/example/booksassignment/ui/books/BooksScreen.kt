@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -33,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -41,8 +43,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.example.booksassignment.Constants
 import com.example.booksassignment.R
 import com.example.booksassignment.data.models.Book
@@ -174,7 +178,8 @@ fun Books(
             ) {
                 Book(
                     title = book.title,
-                    img = book.img
+                    img = book.img,
+                    author = book.details?.author ?: ""
                 )
             }
         }
@@ -185,26 +190,45 @@ fun Books(
 @Composable
 fun Book(
     title: String,
-    img: String
+    img: String,
+    author: String
 ) {
     Row(
         modifier = horizontalPaddingModifier
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        val painter = rememberVectorPainter(
+            image = Icons.Default.AccountBox
+        )
         GlideImage(
             model = img,
             contentDescription = stringResource(id = R.string.image_of_the_book),
             modifier = Modifier
                 .size(width = 90.dp, height = 150.dp),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            loading = placeholder(painter = painter), // FIXME: https://github.com/bumptech/glide/issues/5308
+            transition = CrossFade
         )
-        Text(
-            text = title,
-            fontStyle = FontStyle.Italic,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 2,
-            style = Typography.bodyLarge
-        )
+        Column {
+            Text(
+                text = title,
+                fontStyle = FontStyle.Italic,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                style = Typography.bodyLarge
+            )
+            if (author.isNotEmpty()) {
+                Text(
+                    text = stringResource(
+                        id = R.string.author,
+                        author
+                    ),
+                    modifier = Modifier
+                        .padding(top = 8.dp),
+                    style = Typography.bodyMedium
+                )
+            }
+        }
     }
 }

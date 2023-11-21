@@ -39,7 +39,7 @@ class DefaultBookDetailsRepository @Inject constructor(
         return when (networkResult) {
             is CustomResult.Success -> {
                 val data = networkBookDetailsMapper.map(networkResult.data)
-                bookDetailsDao.delete()
+                bookDetailsDao.deleteById(data.id)
                 bookDetailsDao.insert(bookDetailsDatabaseMapper.map(data))
 
                 val databaseBookDetails = getByBookIdFromDatabase(id)

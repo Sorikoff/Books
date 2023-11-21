@@ -5,7 +5,7 @@ import com.example.booksassignment.data.CustomResult
 import com.example.booksassignment.data.mappings.book.BookDatabaseMapper
 import com.example.booksassignment.data.mappings.book.NetworkBookMapper
 import com.example.booksassignment.data.mappings.bookslist.BooksListDatabaseMapper
-import com.example.booksassignment.data.mappings.bookslist.DatabaseBooksListMapper
+import com.example.booksassignment.data.mappings.bookslist.DatabaseBooksListBookMapper
 import com.example.booksassignment.data.mappings.bookslist.NetworkBooksListMapper
 import com.example.booksassignment.data.models.BooksList
 import com.example.booksassignment.data.repositories.executeApi
@@ -27,7 +27,7 @@ class DefaultBooksListRepository @Inject constructor(
     private val networkBookMapper: NetworkBookMapper,
     private val bookDatabaseMapper: BookDatabaseMapper,
     private val booksListDatabaseMapper: BooksListDatabaseMapper,
-    private val databaseBooksListMapper: DatabaseBooksListMapper,
+    private val databaseBooksListBookMapper: DatabaseBooksListBookMapper,
     private val networkBooksListMapper: NetworkBooksListMapper
 ) : BooksListRepository {
 
@@ -75,7 +75,7 @@ class DefaultBooksListRepository @Inject constructor(
                 )
 
                 if (diff < Constants.CACHE_1_HOUR) {
-                    databaseBooksListMapper.map(results)
+                    databaseBooksListBookMapper.map(results)
                 } else {
                     listOf()
                 }

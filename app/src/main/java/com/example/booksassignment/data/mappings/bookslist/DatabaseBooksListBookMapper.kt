@@ -7,7 +7,7 @@ import com.example.booksassignment.data.sources.local.book.BookEntity
 import com.example.booksassignment.data.sources.local.bookslist.BooksListEntity
 import javax.inject.Inject
 
-class DatabaseBooksListMapper @Inject constructor(
+class DatabaseBooksListBookMapper @Inject constructor(
     private val databaseBookMapper: DatabaseBookMapper
 ) : DtoMapper<Map<BooksListEntity, List<BookEntity>>, List<BooksList>> {
 

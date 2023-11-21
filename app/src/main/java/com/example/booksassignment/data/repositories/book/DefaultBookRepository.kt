@@ -3,7 +3,7 @@ package com.example.booksassignment.data.repositories.book
 import com.example.booksassignment.Constants
 import com.example.booksassignment.data.CustomResult
 import com.example.booksassignment.data.mappings.book.BookDatabaseMapper
-import com.example.booksassignment.data.mappings.book.DatabaseBookMapper
+import com.example.booksassignment.data.mappings.book.DatabaseBookBookDetailsMapper
 import com.example.booksassignment.data.mappings.book.NetworkBookMapper
 import com.example.booksassignment.data.models.Book
 import com.example.booksassignment.data.repositories.executeApi
@@ -21,7 +21,7 @@ class DefaultBookRepository @Inject constructor(
     private val bookDao: BookDao,
     // Mappings
     private val bookDatabaseMapper: BookDatabaseMapper,
-    private val databaseBookMapper: DatabaseBookMapper,
+    private val databaseBookBookDetailsMapper: DatabaseBookBookDetailsMapper,
     private val networkBookMapper: NetworkBookMapper
 ) : BookRepository {
 
@@ -53,7 +53,7 @@ class DefaultBookRepository @Inject constructor(
 
     private suspend fun getByListIdFromDatabase(id: Int): List<Book> {
         val result = executeDatabase {
-            bookDao.getByListId(id)
+            bookDao.getByListIdWithDetails(id)
         }
         return when (result) {
             is CustomResult.Success -> {
@@ -64,12 +64,12 @@ class DefaultBookRepository @Inject constructor(
 
                 val now = OffsetDateTime.now()
                 val diff = ChronoUnit.SECONDS.between(
-                    results.last().createdAt,
+                    results.keys.last().createdAt,
                     now
                 )
 
                 if (diff < Constants.CACHE_1_HOUR) {
-                    databaseBookMapper.map(results)
+                    databaseBookBookDetailsMapper.map(results)
                 } else {
                     listOf()
                 }
